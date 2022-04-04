@@ -19,6 +19,8 @@ base <- write.csv(lichess_game_data, "base.csv")
 
 # Limpieza de datos
 
+### tiempo es -3
+
 Datos$WhiteElo <- as.numeric(Datos$WhiteElo)
 
 Datos$BlackElo <- as.numeric(Datos$BlackElo)
@@ -34,6 +36,17 @@ Datos <- Datos %>%
                                Color == "Blanco" & Result == "0-1" ~ "Derrota",
                                Color == "Negro" & Result == "0-1" ~ "Victoria",
                                Color == "Negro" & Result == "1-0" ~ "Derrota",
-                               TRUE ~ "Tablas"))
+                               TRUE ~ "Tablas"),
+         Fecha = as.Date(ymd(paste0(substr(Date,1,4),substr(Date,6,7),substr(Date,9,10)
+                    ))))
+
+
+
+#Definimos colores
+
+negro <- "#0c0c0c"
+gris1 <- "#585757"
+gris2 <- "#727171"
+blanco <- "#f9f9f9"
 
 
