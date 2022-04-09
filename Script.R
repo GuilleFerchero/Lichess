@@ -37,10 +37,13 @@ Datos <- Datos %>%
                                Color == "Negro" & Result == "0-1" ~ "Victoria",
                                Color == "Negro" & Result == "1-0" ~ "Derrota",
                                TRUE ~ "Tablas"),
-         Fecha = as.Date(ymd(paste0(substr(Date,1,4),substr(Date,6,7),substr(Date,9,10)
-                    ))))
-
-
+         Fecha = as.Date(ymd(paste0(substr(Date,1,4),substr(Date,6,7),substr(Date,9,10)))),
+         Hora = as.numeric(substr(UTCTime,1,2)),
+         Hora_arg = case_when(Hora == 3 ~ 0,
+                              Hora == 2 ~ 23,
+                              Hora == 1 ~ 22,
+                              Hora == 0 ~ 21,
+                              TRUE ~ (Hora - 3)))
 
 #Definimos colores
 
