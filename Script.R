@@ -53,3 +53,15 @@ gris2 <- "#727171"
 blanco <- "#f9f9f9"
 
 
+#####Visualizaciones##############
+
+##Linea
+
+g1 <- plot_ly(Datos, x = ~Fecha) %>% 
+  add_trace(y = ~Elo, mode = "lines+markers")
+
+g1
+
+#
+
+
