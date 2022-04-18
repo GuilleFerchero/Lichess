@@ -58,7 +58,7 @@ blanco <- "#f9f9f9"
 ##Linea
 
 g1 <- plot_ly(Datos, x = ~Fecha) %>% 
-  add_trace(y = ~Elo, mode = "lines+markers")
+  add_trace(y = ~Elo, mode = "lines+markers", name = "elo")
 
 g1
 
