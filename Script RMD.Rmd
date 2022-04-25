@@ -1,6 +1,14 @@
 ---
 title: "Lichess Project"
-output: html_document
+author: "Ferchero Juan Guillermo (@guilleadhonorem)^[ _Soy sociólogo (FSOC-UBA). Me dedico al analisis de datos en temas como el estudio de la opinión pública, comportamiento electoral, analisis de texto, redes sociales y consumos culturales, todo mediante R y Phyton. Dirijo el Observatorio de Opinión Publica  en_ [ACDES](http://www.acdesweb.org/) _y escribo en_ [mi blog de temas de R](https://rpubs.com/guilleferchero) _y en_ [mi blog de temas de generales](https://bitacoramodernablog.wordpress.com). _Contacto_: guilleferchero@gmail.com]"
+date: "Abril de 2021"
+output:
+  html_document:
+    code_download: true
+    code_folding: hide
+    toc: TRUE
+    depth: 5
+subtitle: Base para app de analisis de datos Lichess
 ---
 
 ```{r setup, include=FALSE}
@@ -9,9 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## LICHESS
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+A continuación veremos algunos análisis de los datos que pueden extraerse de la API de [lichess](https://lichess.com). El objetivo de esta publicación es diseñar las visualizaciones para una futura app.
 
 ```{r inicio}
 #Limpiamos memoria
@@ -29,16 +35,62 @@ library(plotly)
 library("chessR")
 
 # Levantamos ultimos datos
-Datos <- get_raw_lichess("Guillebarracas")
-base <- write.csv(lichess_game_data, "base.csv")
+usuario <- "Guillebarracas"
+Datos <- get_raw_lichess(usuario)
+#base <- write.csv(Datos, "base.csv")
+
+
+# limpieza
+
+
+
+### tiempo es -3
+
+Datos$WhiteElo <- as.numeric(Datos$WhiteElo)
+
+Datos$BlackElo <- as.numeric(Datos$BlackElo)
+
+Datos <- Datos %>% 
+  mutate(Color = case_when(White == "Guillebarracas"~"Blanco",
+                           TRUE ~ "Negro" ),
+         Elo = case_when(Color == "Blanco" ~ WhiteElo,
+                         TRUE ~ BlackElo),
+         Elo_Rival = case_when(Color == "Blanco" ~ BlackElo,
+                         TRUE ~ WhiteElo),
+         Resultado = case_when(Color == "Blanco" & Result == "1-0" ~ "Victoria",
+                               Color == "Blanco" & Result == "0-1" ~ "Derrota",
+                               Color == "Negro" & Result == "0-1" ~ "Victoria",
+                               Color == "Negro" & Result == "1-0" ~ "Derrota",
+                               TRUE ~ "Tablas"),
+         Fecha = as.Date(ymd(paste0(substr(Date,1,4),substr(Date,6,7),substr(Date,9,10)))),
+         Hora = as.numeric(substr(UTCTime,1,2)),
+         Hora_arg = case_when(Hora == 3 ~ 0,
+                              Hora == 2 ~ 23,
+                              Hora == 1 ~ 22,
+                              Hora == 0 ~ 21,
+                              TRUE ~ (Hora - 3)))
+
+#definimos desde y hasta
+
+cant <- nrow(Datos)
+
+Desde <- min(Datos$Fecha)
+
+Hasta <- max(Datos$Fecha)
+
+#Definimos colores
+
+negro <- "#0c0c0c"
+gris1 <- "#585757"
+gris2 <- "#727171"
+blanco <- "#f9f9f9"
+
+
+
+
 ```
 
-## Including Plots
+## Resumen
 
-You can also embed plots, for example:
+La base contiene `r cant` de partidas jugadas desde `r Desde` hasta `r Hasta` por el usuario `r usuario`
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
