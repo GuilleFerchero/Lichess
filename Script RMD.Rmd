@@ -94,3 +94,31 @@ blanco <- "#f9f9f9"
 
 La base contiene `r cant` de partidas jugadas desde `r Desde` hasta `r Hasta` por el usuario `r usuario`
 
+```{r}
+
+
+fig1 <- ggplot(Datos, aes(x = Fecha, y = Elo))+ #seleccionamos variables a graficar y a colorear
+  geom_line(color = "#000066")+ 
+  geom_point(color = "#000066")+
+  # geom_smooth(method = 'loess',
+  #             formula = 'y ~ x')+
+  geom_hline(yintercept = mean(Datos$Elo),
+             color =  "#000066")+
+  labs(title = paste0("Partidas Lichess ",Desde," - ",Hasta),
+       subtitle = "Evolución Ranking Elo",
+       caption = "API Lichess",
+       y = "Elo",
+       x = "Fecha",
+       yintercept = "Promedio")+
+  scale_color_manual(values = c("#000066"))+ #coloreamos las lineas
+  theme_minimal()+
+  theme(plot.title = element_text( hjust = 0.5 , vjust = 0.5), 
+        plot.subtitle = element_text( hjust = 0.5 , vjust = 0.5))
+
+
+fig1 <- ggplotly(fig1)
+
+fig1
+
+```
+
