@@ -68,7 +68,15 @@ Datos <- Datos %>%
                               Hora == 2 ~ 23,
                               Hora == 1 ~ 22,
                               Hora == 0 ~ 21,
-                              TRUE ~ (Hora - 3)))
+                              TRUE ~ (Hora - 3)),
+         weekday = wday(Fecha,1),
+         Mes = month(Fecha))
+
+Basepract <- Datos %>% 
+  head(1000)
+
+write.csv(Basepract,"Basepract.csv")
+
 
 #definimos desde y hasta
 
@@ -97,12 +105,15 @@ La base contiene `r cant` de partidas jugadas desde `r Desde` hasta `r Hasta` po
 ```{r}
 
 
-fig1 <- ggplot(Datos, aes(x = Fecha, y = Elo))+ #seleccionamos variables a graficar y a colorear
-  geom_line(color = "#000066")+ 
+DatosBlitz <-  Datos %>%
+                 filter(TimeControl == "300+3")
+
+fig1 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo))+ #seleccionamos variables a graficar y a colorear
+  geom_line(color = "#000066")+
   geom_point(color = "#000066")+
   # geom_smooth(method = 'loess',
   #             formula = 'y ~ x')+
-  geom_hline(yintercept = mean(Datos$Elo),
+  geom_hline(yintercept = mean(DatosBlitz$Elo),
              color =  "#000066")+
   labs(title = paste0("Partidas Lichess ",Desde," - ",Hasta),
        subtitle = "Evolución Ranking Elo",
@@ -111,14 +122,69 @@ fig1 <- ggplot(Datos, aes(x = Fecha, y = Elo))+ #seleccionamos variables a grafi
        x = "Fecha",
        yintercept = "Promedio")+
   scale_color_manual(values = c("#000066"))+ #coloreamos las lineas
+  scale_x_date(date_breaks = "1 month",date_labels = "%b-%y")+
   theme_minimal()+
-  theme(plot.title = element_text( hjust = 0.5 , vjust = 0.5), 
+  theme(plot.title = element_text( hjust = 0.5 , vjust = 0.5),
         plot.subtitle = element_text( hjust = 0.5 , vjust = 0.5))
 
 
-fig1 <- ggplotly(fig1)
+fig1 <- ggplotly(fig1) %>%
+    layout(
+         xaxis = list(rangeslider = list(visible = T),
+                      rangeselector=list(
+                        buttons=list(
+                          list(count=1, label="1m", step="month", stepmode="backward"),
+                          list(count=6, label="6m", step="month", stepmode="backward"),
+                          list(count=1, label="YTD", step="year", stepmode="todate"),
+                          list(count=1, label="1y", step="year", stepmode="backward"),
+                          list(step="all")#NO FUNCIONAN LOS BOTONES
+                        ))))
 
 fig1
+
+```
+
+
+
+
+
+```{r}
+
+
+
+EloPromedio = round(mean(DatosBlitz$Elo),2)
+
+fig2 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo, color = Resultado, text = paste0("Elo Rival: ",Elo_Rival)))+ #seleccionamos variables a graficar y a colorear
+  geom_point()+
+  geom_hline(yintercept = EloPromedio,
+             color =  gris1, linetype = "dashed", name = "Elo Promedio")+
+  annotate(geom = "text",x = Desde, y = EloPromedio+10, label = paste0("      Promedio: ",EloPromedio))+
+  labs(title = paste0("Partidas Lichess ",Desde," - ",Hasta),
+       subtitle = "Evolución Ranking Elo",
+       caption = "API Lichess",
+       y = "Elo",
+       x = "Fecha",
+       yintercept = "Promedio")+
+  scale_x_date(date_breaks = "1 month",date_labels = "%b-%y")+
+  scale_color_manual(values = c("#b30000","#facd60","#006600"))+
+  theme_minimal()+
+  theme(plot.title = element_text( hjust = 0.5 , vjust = 0.5),
+        plot.subtitle = element_text( hjust = 0.5 , vjust = 0.5))
+
+
+fig2 <- ggplotly(fig2) %>%
+    layout(#autosize = F, width = 1000, height = 500,
+         xaxis = list(rangeslider = list(visible = T),
+                      rangeselector=list(
+                        buttons=list(
+                          list(count=1, label="1m", step="month", stepmode="backward"),
+                          list(count=6, label="6m", step="month", stepmode="backward"),
+                          list(count=1, label="YTD", step="year", stepmode="todate"),
+                          list(count=1, label="1y", step="year", stepmode="backward"),
+                          list(step="all")#NO FUNCIONAN LOS BOTONES
+                        ))))
+
+fig2
 
 ```
 
