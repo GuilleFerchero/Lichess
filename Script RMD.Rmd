@@ -102,6 +102,41 @@ blanco <- "#f9f9f9"
 
 La base contiene `r cant` de partidas jugadas desde `r Desde` hasta `r Hasta` por el usuario `r usuario`
 
+# Gráfico 1 ( Sectores win/lose )
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Tabla_1 <- DatosBlitz %>% 
+  select(Resultado) %>% 
+  group_by(Resultado) %>% 
+  summarise(Total = n()) %>% 
+  mutate(Porcentaje = round(Total/sum(Total)*100,2)) %>% 
+  mutate(Etiqueta = paste0(Total, " (% ", Porcentaje, ")"))
+
+ggplot(Tabla_1, aes(x = "" , y = Total, fill = Resultado ))+
+  geom_bar(stat = "identity", width = 0.5)+
+  geom_text(aes(label = Etiqueta), position = position_stack(vjust = 0.5))+
+  scale_fill_manual(values = c("#e3f6f5", "#95adbe", "#e0f0ea"))+
+    labs(title = paste0("Resumen resultados ",Desde, " - ", Hasta),
+       subtitle = "Tipos de Productos",
+       caption = "Fuente: API Lichess",
+       x = "",
+       y = "")+
+  theme_minimal()+
+  theme(text = element_text(family = "Decima WE", color = "grey20"),
+        plot.title = element_text(family = "Times New Roman", hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text( hjust = 0.5, vjust = 0.5),
+        legend.position = "bottom",
+        legend.title = element_blank())+
+  guides(fill = guide_legend(reverse = TRUE))+
+  coord_flip()
+
+
+```
+
+
+
+#Gráfico 2 ( Evolutivo elo )
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 
@@ -115,7 +150,7 @@ fig1 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo))+ #seleccionamos variables a 
   #             formula = 'y ~ x')+
   geom_hline(yintercept = mean(DatosBlitz$Elo),
              color =  "#000066")+
-  labs(title = paste0("Partidas Lichess ",Desde," - ",Hasta),
+  labs(title = paste0("Evolutivo Elo ",Desde," - ",Hasta),
        subtitle = "Evolución Ranking Elo",
        caption = "API Lichess",
        y = "Elo",
