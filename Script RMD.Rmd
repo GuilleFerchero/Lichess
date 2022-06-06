@@ -15,11 +15,11 @@ subtitle: Base para app de analisis de datos Lichess
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## LICHESS
+## Proyecto Lichessapp 
 
 A continuación veremos algunos análisis de los datos que pueden extraerse de la API de [lichess](https://lichess.com). El objetivo de esta publicación es diseñar las visualizaciones para una futura app.
 
-```{r inicio}
+```{r inicio, message=FALSE, warning=FALSE, include=FALSE}
 #Limpiamos memoria
 
 rm(list = ls())
@@ -102,7 +102,7 @@ blanco <- "#f9f9f9"
 
 La base contiene `r cant` de partidas jugadas desde `r Desde` hasta `r Hasta` por el usuario `r usuario`
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 
 DatosBlitz <-  Datos %>%
@@ -128,27 +128,23 @@ fig1 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo))+ #seleccionamos variables a 
         plot.subtitle = element_text( hjust = 0.5 , vjust = 0.5))
 
 
-fig1 <- ggplotly(fig1) %>%
+fig1 <- ggplotly(fig1, dynamicTicks = T) %>%
     layout(
          xaxis = list(rangeslider = list(visible = T),
                       rangeselector=list(
                         buttons=list(
-                          list(count=1, label="1m", step="month", stepmode="backward"),
-                          list(count=6, label="6m", step="month", stepmode="backward"),
+                          list(count=1, label="1m", step="month", stepmode="todate"),
+                          list(count=6, label="6m", step="month", stepmode="todate"),
                           list(count=1, label="YTD", step="year", stepmode="todate"),
                           list(count=1, label="1y", step="year", stepmode="backward"),
-                          list(step="all")#NO FUNCIONAN LOS BOTONES
+                          list(step="all", label="Todos")#NO FUNCIONAN LOS BOTONES (Up: Se arreglo con la función "dynamicTicks")
                         ))))
 
 fig1
 
 ```
 
-
-
-
-
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 
 
@@ -172,7 +168,7 @@ fig2 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo, color = Resultado, text = pas
         plot.subtitle = element_text( hjust = 0.5 , vjust = 0.5))
 
 
-fig2 <- ggplotly(fig2) %>%
+fig2 <- ggplotly(fig2, dynamicTicks = T) %>%
     layout(#autosize = F, width = 1000, height = 500,
          xaxis = list(rangeslider = list(visible = T),
                       rangeselector=list(
@@ -189,4 +185,3 @@ fig2
 
 
 ```
-
