@@ -57,6 +57,7 @@ Datos <- Datos %>%
                          TRUE ~ BlackElo),
          Elo_Rival = case_when(Color == "Blanco" ~ BlackElo,
                          TRUE ~ WhiteElo),
+         Dif_Elo = Elo-Elo_Rival,
          Resultado = case_when(Color == "Blanco" & Result == "1-0" ~ "Victoria",
                                Color == "Blanco" & Result == "0-1" ~ "Derrota",
                                Color == "Negro" & Result == "0-1" ~ "Victoria",
@@ -93,7 +94,8 @@ gris1 <- "#585757"
 gris2 <- "#727171"
 blanco <- "#f9f9f9"
 
-
+DatosBlitz <-  Datos %>%
+                 filter(TimeControl == "300+3")
 
 
 ```
@@ -109,15 +111,56 @@ Tabla_1 <- DatosBlitz %>%
   select(Resultado) %>% 
   group_by(Resultado) %>% 
   summarise(Total = n()) %>% 
-  mutate(Porcentaje = round(Total/sum(Total)*100,2)) %>% 
+  mutate(Porcentaje = round(Total/sum(Total)*100,1)) %>% 
   mutate(Etiqueta = paste0(Total, " (% ", Porcentaje, ")"))
 
 ggplot(Tabla_1, aes(x = "" , y = Total, fill = Resultado ))+
   geom_bar(stat = "identity", width = 0.5)+
-  geom_text(aes(label = Etiqueta), position = position_stack(vjust = 0.5))+
-  scale_fill_manual(values = c("#e3f6f5", "#95adbe", "#e0f0ea"))+
-    labs(title = paste0("Resumen resultados ",Desde, " - ", Hasta),
-       subtitle = "Tipos de Productos",
+  geom_text(aes(label = Etiqueta), position = position_stack(vjust = 0.5),
+            color = case_when(
+              Tabla_1$Resultado == "Victoria" ~ "black",
+              Tabla_1$Resultado == "Derrota" ~ "white",
+              Tabla_1$Resultado == "Tablas" ~ "#ada9a9",
+            ))+
+  scale_fill_manual(values = c("#272643", "#e3f6f5", "#2c698d"))+
+    labs(title = paste0("Resumen resultados totales ",Desde, " - ", Hasta),
+       subtitle = "",
+       caption = "Fuente: API Lichess",
+       x = "",
+       y = "")+
+  theme_minimal()+
+  theme(text = element_text(family = "Decima WE", color = "grey20"),
+        plot.title = element_text(family = "Times New Roman", hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text( hjust = 0.5, vjust = 0.5),
+        legend.position = "bottom",
+        legend.title = element_blank())+
+  guides(fill = guide_legend(reverse = TRUE))+
+  coord_flip()
+
+
+```
+# Gráfico 1.1 ( Sectores win/lose por Elo inf )
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Tabla_1 <- DatosBlitz %>%
+  filter(Dif_Elo>0) %>% 
+  select(Resultado) %>% 
+  group_by(Resultado) %>% 
+  summarise(Total = n()) %>% 
+  mutate(Porcentaje = round(Total/sum(Total)*100,1)) %>% 
+  mutate(Etiqueta = paste0(Total, " (% ", Porcentaje, ")"))
+
+ggplot(Tabla_1, aes(x = "" , y = Total, fill = Resultado ))+
+  geom_bar(stat = "identity", width = 0.5)+
+  geom_text(aes(label = Etiqueta), position = position_stack(vjust = 0.5),
+            color = case_when(
+              Tabla_1$Resultado == "Victoria" ~ "black",
+              Tabla_1$Resultado == "Derrota" ~ "white",
+              Tabla_1$Resultado == "Tablas" ~ "#ada9a9",
+            ))+
+  scale_fill_manual(values = c("#272643", "#e3f6f5", "#2c698d"))+
+    labs(title = paste0("Resumen resultados con rival Elo Inferior",Desde, " - ", Hasta),
+       subtitle = "",
        caption = "Fuente: API Lichess",
        x = "",
        y = "")+
@@ -133,7 +176,42 @@ ggplot(Tabla_1, aes(x = "" , y = Total, fill = Resultado ))+
 
 ```
 
+# Gráfico 1.1 ( Sectores win/lose por Elo sup )
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+Tabla_1 <- DatosBlitz %>%
+  filter(Dif_Elo<0) %>% 
+  select(Resultado) %>% 
+  group_by(Resultado) %>% 
+  summarise(Total = n()) %>% 
+  mutate(Porcentaje = round(Total/sum(Total)*100,1)) %>% 
+  mutate(Etiqueta = paste0(Total, " (% ", Porcentaje, ")"))
+
+ggplot(Tabla_1, aes(x = "" , y = Total, fill = Resultado ))+
+  geom_bar(stat = "identity", width = 0.5)+
+  geom_text(aes(label = Etiqueta), position = position_stack(vjust = 0.5),
+            color = case_when(
+              Tabla_1$Resultado == "Victoria" ~ "black",
+              Tabla_1$Resultado == "Derrota" ~ "white",
+              Tabla_1$Resultado == "Tablas" ~ "#ada9a9",
+            ))+
+  scale_fill_manual(values = c("#272643", "#e3f6f5", "#2c698d"))+
+    labs(title = paste0("Resumen resultados con rival Elo Superior ",Desde, " - ", Hasta),
+       subtitle = "",
+       caption = "Fuente: API Lichess",
+       x = "",
+       y = "")+
+  theme_minimal()+
+  theme(text = element_text(family = "Decima WE", color = "grey20"),
+        plot.title = element_text(family = "Times New Roman", hjust = 0.5, vjust = 0.5),
+        plot.subtitle = element_text( hjust = 0.5, vjust = 0.5),
+        legend.position = "bottom",
+        legend.title = element_blank())+
+  guides(fill = guide_legend(reverse = TRUE))+
+  coord_flip()
+
+
+```
 
 #Gráfico 2 ( Evolutivo elo )
 
@@ -144,8 +222,8 @@ DatosBlitz <-  Datos %>%
                  filter(TimeControl == "300+3")
 
 fig1 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo))+ #seleccionamos variables a graficar y a colorear
-  geom_line(color = "#000066")+
-  geom_point(color = "#000066")+
+  geom_line(color = "#2c698d")+
+  geom_point(color = "#2c698d")+
   # geom_smooth(method = 'loess',
   #             formula = 'y ~ x')+
   geom_hline(yintercept = mean(DatosBlitz$Elo),
@@ -156,7 +234,7 @@ fig1 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo))+ #seleccionamos variables a 
        y = "Elo",
        x = "Fecha",
        yintercept = "Promedio")+
-  scale_color_manual(values = c("#000066"))+ #coloreamos las lineas
+  scale_color_manual(values = c("#2c698d"))+ #coloreamos las lineas
   scale_x_date(date_breaks = "1 month",date_labels = "%b-%y")+
   theme_minimal()+
   theme(plot.title = element_text( hjust = 0.5 , vjust = 0.5),
@@ -197,7 +275,7 @@ fig2 <- ggplot(DatosBlitz, aes(x = Fecha, y = Elo, color = Resultado, text = pas
        x = "Fecha",
        yintercept = "Promedio")+
   scale_x_date(date_breaks = "1 month",date_labels = "%b-%y")+
-  scale_color_manual(values = c("#b30000","#facd60","#006600"))+
+  scale_color_manual(values = c("#2c698d","#e3f6f5","#272643"))+
   theme_minimal()+
   theme(plot.title = element_text( hjust = 0.5 , vjust = 0.5),
         plot.subtitle = element_text( hjust = 0.5 , vjust = 0.5))
