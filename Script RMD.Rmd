@@ -159,7 +159,7 @@ ggplot(Tabla_1, aes(x = "" , y = Total, fill = Resultado ))+
               Tabla_1$Resultado == "Tablas" ~ "#ada9a9",
             ))+
   scale_fill_manual(values = c("#272643", "#e3f6f5", "#2c698d"))+
-    labs(title = paste0("Resumen resultados con rival Elo Inferior",Desde, " - ", Hasta),
+    labs(title = paste0("Resumen resultados con rival Elo Inferior ",Desde, " - ", Hasta),
        subtitle = "",
        caption = "Fuente: API Lichess",
        x = "",
