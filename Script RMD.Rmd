@@ -137,6 +137,8 @@ ggplot(Tabla_1, aes(x = "" , y = Total, fill = Resultado ))+
   guides(fill = guide_legend(reverse = TRUE))+
   coord_flip()
 
+#
+
 
 ```
 # Gráfico 1.1 ( Sectores win/lose por Elo inf )
